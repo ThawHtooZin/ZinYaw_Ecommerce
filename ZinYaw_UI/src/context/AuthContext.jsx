@@ -1,59 +1,85 @@
+// src/context/AuthContext.jsx
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { authService } from '../services/authService';
 
+// 1. Create the Context object
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(() => {
-    const saved = localStorage.getItem('user');
-    return saved ? JSON.parse(saved) : null;
-  });
+  const [user, setUser] = useState(null);
+  // loading = true prevents ProtectedRoute from redirecting before the token check finishes
   const [loading, setLoading] = useState(true);
 
+  // 2. Hydrate session on initial app load
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      authService.getProfile()
-        .then((res) => {
-          if (res.success) {
-            setUser(res.data);
-            localStorage.setItem('user', JSON.stringify(res.data));
-          }
-        })
-        .catch(() => logout())
-        .finally(() => setLoading(false));
-    } else {
-      setLoading(false);
+    async function initAuth() {
+      const token = localStorage.getItem('zinyaw_token');
+      if (!token) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        // Fetch current user details from GET /profile/me
+        const res = await authService.getProfile();
+        if (res?.data) {
+          setUser(res.data);
+        } else {
+          // Token is corrupted or expired
+          localStorage.removeItem('zinyaw_token');
+          setUser(null);
+        }
+      } catch (err) {
+        console.error('Session restoration failed:', err.message);
+        localStorage.removeItem('zinyaw_token');
+        setUser(null);
+      } finally {
+        setLoading(false);
+      }
     }
+
+    initAuth();
   }, []);
 
+  // 3. Login action: saves token and sets user
   const login = async (credentials) => {
-    const res = await authService.login(credentials);
-    if (res.success) {
-      localStorage.setItem('token', res.data.token);
-      localStorage.setItem('user', JSON.stringify(res.data.user));
-      setUser(res.data.user);
-    }
-    return res;
+    const data = await authService.login(credentials);
+    // data.user comes from Laravel POST /auth/login response
+    setUser(data.user);
+    return data;
   };
 
+  // 4. Logout action: clears local token and resets state
   const logout = async () => {
     try {
       await authService.logout();
     } catch (err) {
-      // Ignore network errors on logout
+      console.warn('Backend logout failed or offline:', err.message);
     } finally {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
       setUser(null);
     }
   };
 
+  const value = {
+    user,
+    loading,
+    isAuthenticated: !!user,
+    login,
+    logout,
+  };
+
   return (
-    <AuthContext.Provider value={{ user, setUser, loading, login, logout }}>
-      {children}
+    <AuthContext.Provider value={value}>
+      {!loading && children}
     </AuthContext.Provider>
   );
 };
 
-export const useAuth = () => useContext(AuthContext);
+// Custom Hook for clean imports in components
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+};
