@@ -17,6 +17,7 @@ use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\AdminBaseProductController;
 use App\Http\Controllers\Api\AdminPaymentController;
 use App\Http\Controllers\Api\AdminCashoutController;
+use App\Http\Controllers\Api\VendorController;
 
 /*
 |--------------------------------------------------------------------------
@@ -42,6 +43,8 @@ Route::prefix('v1')->group(function () {
     Route::get('/catalog/categories', [CatalogController::class, 'categories']);
     Route::get('/catalog/base-products', [CatalogController::class, 'index']);
     Route::get('/catalog/base-products/{id}', [CatalogController::class, 'show']);
+    Route::get('/vendors/featured', [VendorController::class, 'featured']);
+    Route::get('/catalog/featured-products', [CatalogController::class, 'featuredProducts']);
 
 
     // ==========================================

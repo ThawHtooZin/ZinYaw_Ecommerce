@@ -9,5 +9,21 @@ export const vendorService = {
     return res.data;
   },
 
-  // We will add more later for vendor dashboards, token purchases, etc.
+  // GET /vendors/featured
+  getFeaturedVendors: async () => {
+    const response = await api.get('/vendors/featured');
+
+    return response.data.map((vendor) => ({
+      id: vendor.id,
+      name: vendor.store_name,
+      code: vendor.store_name
+        .split(' ')
+        .map((word) => word[0])
+        .join('')
+        .slice(0, 2)
+        .toUpperCase(),
+      category: `${vendor.active_listings_count} active listings`,
+      rating: null,
+    }));
+  },
 };

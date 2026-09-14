@@ -20,7 +20,7 @@ export default function HomePage() {
       try {
         // 2. Fetch both products and vendors at the EXACT SAME TIME
         const [productsData, vendorsData] = await Promise.all([
-          catalogService.getTrendingProducts(),
+          catalogService.getFeaturedProducts(),
           vendorService.getFeaturedVendors()
         ]);
         

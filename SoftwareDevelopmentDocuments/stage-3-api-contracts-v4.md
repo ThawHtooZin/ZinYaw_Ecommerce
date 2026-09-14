@@ -357,6 +357,59 @@
 }
 ```
 
+### 4.5 Home Page Featured Products
+Returns the five newest approved base products that have at least one active vendor listing with available stock. Results are ordered by `created_at` descending.
+
+* **HTTP Method:** `GET`
+* **Endpoint:** `/catalog/featured-products`
+* **Auth:** Public
+* **Response (200 OK):**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": 101,
+      "title": "Classic Cotton T-Shirt",
+      "brand": "Uniqlo",
+      "category_name": "Apparel",
+      "master_image_url": "https://cdn.platform.com/products/tshirt.jpg",
+      "vendor_listings_count": 3,
+      "min_price_mmk": 12000.00,
+      "max_price_mmk": 15000.00
+    }
+  ]
+}
+```
+* **Result Limit:** 5 products.
+* **Frontend Service Method:** `catalogService.getFeaturedProducts()`
+
+### 4.6 Home Page Latest Verified Vendors
+Returns the three newest verified vendor stores. Results are ordered by `created_at` descending.
+
+* **HTTP Method:** `GET`
+* **Endpoint:** `/vendors/featured`
+* **Auth:** Public
+* **Response (200 OK):**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": 5,
+      "store_name": "Aung Store",
+      "store_slug": "aung-store-abc12",
+      "is_verified": true,
+      "active_listings_count": 8
+    }
+  ]
+}
+```
+* **Result Limit:** 3 vendors.
+* **Frontend Service Method:** `vendorService.getFeaturedVendors()`
+
+These endpoints are the homepage discovery contract. They must be added to the Laravel routes and controllers before the frontend calls them.
+
 ---
 
 ## 5. Vendor Store & Inventory Management APIs
@@ -729,3 +782,4 @@
 * **[LOG-009] [ARCHITECT-STAGE-3.1]** Generated Updated API Contract Specification v2 (`stage-3-api-contracts-v2.md`) incorporating all missing endpoints (Logout, AYA Pay Callback, Category Trees, Single Base Product Details, Vendor Token Purchases, Listing CRUD/Listings, Vendor Orders, Customer Orders History/Timeline, and Admin Product Rejection).
 * **[LOG-010] [ARCHITECT-STAGE-3.2]** Merged v3 Direct MMK Architecture changes into this expanded contract: MMK wallet terminology, MMK-priced listings, MMK escrow checkout, vendor cash-out path, and delivery/admin approval updates.
 * **[LOG-011] [ARCHITECT-STAGE-4]** Created v4 by preserving the complete v2 endpoint and response context while incorporating the v3 Direct MMK wallet, pricing, escrow, cash-out, and approval updates.
+* **[LOG-012] [ARCHITECT-STAGE-4.1]** Defined the homepage discovery contract around the implemented catalog/vendor data model: five newest approved products and three newest verified vendors.

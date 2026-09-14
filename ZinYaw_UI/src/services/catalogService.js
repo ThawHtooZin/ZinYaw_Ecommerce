@@ -19,4 +19,22 @@ export const catalogService = {
     const res = await api.get(`/catalog/base-products/${id}`);
     return res.data;
   },
+
+  // GET /catalog/featured-products
+  getFeaturedProducts: async () => {
+    const response = await api.get('/catalog/featured-products');
+
+    return response.data.map((product) => ({
+      id: product.id,
+      title: product.title,
+      image: product.master_image_url,
+      priceMmk: Number(product.min_price_mmk || 0),
+      originalPriceMmk: Number(product.max_price_mmk || 0),
+      storeName: `${product.vendor_listings_count} stores`,
+      verified: false,
+      rating: null,
+      soldCount: null,
+      isBestseller: false,
+    }));
+  },
 };
