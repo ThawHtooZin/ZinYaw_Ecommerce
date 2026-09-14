@@ -321,18 +321,194 @@ The ZinYaw platform UI is built on a 3-Tier Layout Shell Hierarchy with 4 Securi
 
 ## 👑 Area 5: Protected Admin Control Center (AdminLayout)
 
-### 19. AdminDashboardPage (/admin/dashboard)
+### Admin Control Center Design Direction
+The Admin Control Center is a focused operations workspace for reviewing platform activity. It should feel distinct from the customer storefront and vendor portal: dense, scannable, calm, and data-first.
+
+* **Persistent shell:** charcoal left sidebar on desktop, collapsible drawer on mobile, slim top bar, off-white content background.
+* **Sidebar:** ZinYaw Admin wordmark, grouped navigation, active route indicator, pending queue badges, admin identity block, and Logout at the bottom.
+* **Navigation groups:** Overview, Operations, Management, and System.
+* **Typography:** strong compact page headings, readable table text, restrained supporting labels, and no oversized marketing hero.
+* **Color language:** charcoal navigation, white surfaces, slate borders, indigo primary actions, amber pending states, emerald completed states, and rose destructive actions.
+* **Shared states:** loading skeleton, empty queue state, inline error with retry, confirmation dialog for destructive actions, and success toast after mutations.
+
+### Admin Capability Model
+The Admin Control Center gives administrators operational control over the marketplace. The UI must make the difference between **reviewing a request** and **managing an existing record** visible.
+
+| Area | Admin capabilities |
+| :--- | :--- |
+| Product submissions | Inspect, approve, reject with reason, and view moderation history |
+| Catalog products | Add, edit, publish, hide, archive, restore, and delete where permitted |
+| Categories | Add, rename, reorder, hide, archive, and restore categories |
+| Bank slips | View receipt, verify and credit wallet, reject with reason, and view verification history |
+| Vendor cash-outs | View payout details, mark paid and complete, reject with reason, and view payout history |
+| Orders | Search, inspect, view escrow and fulfillment state, review tracking, and flag or resolve disputes |
+| Users | Search, inspect profile and wallet, suspend/reactivate account, and review account activity |
+| Vendors | Inspect store, verify, suspend/reactivate store, review listings, and open vendor portal |
+| Activity | View who performed an action, what changed, when it changed, and the result |
+
+Every mutation must have a visible action state: confirmation before destructive actions, disabled/loading action while processing, success feedback after completion, and an error message with retry or recovery guidance.
+
+### Admin Page Inventory
+
+#### 19. AdminDashboardPage (`/admin/dashboard`)
+* **Purpose:** Give the admin an immediate view of what needs attention.
+* **Layout:** Four summary cards, a "Needs attention" queue list, recent activity preview, and quick links to operational pages.
+* **Summary cards:** Pending product requests, pending bank slips, pending vendor cash-outs, and platform GMV.
+* **Primary actions:** Open each queue, refresh dashboard data, and inspect recent activity.
+* **Empty state:** "Everything is up to date" when all queues are empty.
+* **API status:** Dashboard UI first; required data APIs will be specified after the page design is approved.
+
+#### 20. AdminProductModerationPage (`/admin/moderation/base-products`)
+* **Purpose:** Review vendor-submitted products before they enter the shared catalog. This is an approval queue, not the full catalog CRUD screen.
+* **Layout:** Page header with pending count, search/filter row, dense request table, and review detail drawer or detail route.
+* **Table columns:** Product title and brand, requester/vendor, category, submitted date, status, and action.
+* **Detail view:** Product image, brand, description, category, specification fields, requester, submission metadata, and moderation history.
+* **Actions:** Open review, approve, reject with reason, and return to queue.
+* **Important states:** Pending, approved, rejected, loading, empty queue, rejection confirmation, mutation success, and mutation error.
+
+#### 21. ProductModerationDetailPage (`/admin/moderation/base-products/:id`)
+* **Purpose:** Give the admin enough context to make a safe approve/reject decision.
+* **Layout:** Breadcrumb, product overview, specification panel, requester panel, moderation history, and sticky decision bar.
+* **Decision bar:** Approve, Reject, and Back to queue.
+* **Reject flow:** Opens a modal with required rejection reason, cancel action, and destructive confirmation.
+* **Approved state:** Shows publication confirmation and a link to the catalog record.
+
+#### 22. AdminCatalogPage (`/admin/catalog`)
+* **Purpose:** Manage products that already exist in the shared catalog. This is the catalog CRUD and visibility workspace.
+* **Layout:** Page header with `Add Base Product` button, search/filter toolbar, product table, and detail drawer.
+* **Tabs:** All Products, Published, Hidden, Pending, and Rejected.
+* **Table columns:** Product image, title, brand, category, active vendor offers, price range MMK, visibility, updated date, and actions.
+* **Row actions:** View, Edit, Hide/Show, Archive, and Delete where permitted.
+* **Bulk actions:** Hide selected products, publish selected products, and archive selected products with confirmation.
+* **Important states:** Loading, empty results, unsaved changes, archive confirmation, delete confirmation, and API error.
+* **Admin powers:** Add a product without moderation, edit approved metadata, publish or hide products, archive products, restore archived products, and delete only when no dependent offers or orders prevent deletion.
+* **Dependency warning:** If a product has active vendor offers or order history, replace Delete with a safer Archive action and explain why.
+* **Vendor ownership rule:** The admin manages the shared Base Product record. Deleting or archiving a Base Product affects every vendor listing attached to it, so the UI must show dependent vendor offers before confirmation. Vendor-owned listing stock and prices are not silently deleted from this screen.
+
+#### 23. AdminBaseProductCreatePage (`/admin/catalog/base-products/new`)
+* **Purpose:** Allow an admin to add a base product directly to the shared catalog.
+* **Layout:** Multi-section form with product identity, category, image, description, and specifications.
+* **Fields:** Title, brand, category, master image URL or upload placeholder, description, and structured specifications.
+* **Preview:** A compact storefront preview showing how the product will appear to customers.
+* **Actions:** Save as draft, publish, cancel, and reset form.
+* **Validation:** Required title/category, image format or URL validation, and clear inline field errors.
+* **Admin behavior:** Products created here are marked as admin-created and may be published directly without entering the vendor approval queue.
+
+#### 24. AdminBaseProductEditPage (`/admin/catalog/base-products/:id/edit`)
+* **Purpose:** Update catalog metadata without changing vendor offer data.
+* **Layout:** Same form system as create, prefilled with current values, plus a change summary panel.
+* **Editable fields:** Title, brand, category, master image, description, specifications, and visibility.
+* **Protected information:** Vendor prices, stock, and orders are shown as read-only links to the relevant vendor/order area.
+* **Actions:** Save changes, publish/hide, archive, delete where permitted, and cancel.
+* **Important states:** Dirty form warning, save success, save error, archive confirmation, and delete confirmation.
+* **Admin powers:** Edit catalog metadata, change visibility, archive, restore, and delete when the dependency rules allow it. Vendor prices, inventory, and order records are not edited from this form.
+
+#### 25. AdminCategoryManagementPage (`/admin/catalog/categories`)
+* **Purpose:** Maintain the category tree used by customers, vendors, and product forms.
+* **Layout:** Nested category tree on the left and create/edit panel on the right.
+* **Actions:** Add root category, add child category, rename, reorder, hide, archive, and restore.
+* **Create category form:** Category name, parent category selector, slug preview/edit field, display order, visibility, and optional description.
+* **Category examples:** `Electronics` as a root category, then `Mobile Phones` as a child category under `Electronics`.
+* **Create flow:** Click `Add Category` -> choose root or parent category -> enter name -> review slug/order -> save -> show the new category in the tree.
+* **Edit flow:** Select a category -> edit name, parent, slug, order, description, or visibility -> save with a confirmation when moving products between branches.
+* **Safeguards:** Warn before archiving a category with products; require confirmation for destructive actions.
+* **Important states:** Empty tree, unsaved category changes, duplicate-name error, and archive warning.
+* **Admin powers:** Create root and child categories, rename, reorder, hide, archive, and restore. Category deletion is replaced by archive when products still depend on the category.
+
+#### 26. BankSlipVerificationPage (`/admin/payments/bank-slips`)
+* **Purpose:** Verify manual wallet top-up evidence.
+* **Layout:** Pending slip table with a right-side verification panel or modal.
+* **Table columns:** Customer, payment channel, claimed MMK amount, transaction ID, submitted date, and status.
+* **Verification panel:** Slip image viewer, customer wallet context, submitted details, and verification action.
+* **Actions:** Verify and credit wallet, reject with reason, close preview.
+* **Important states:** Pending, verified, rejected, image loading, invalid image, and empty queue.
+* **Admin powers:** Verify and credit the customer's MMK wallet, reject with a reason, reopen the receipt, and review prior verification decisions. A verified slip cannot be credited twice.
+
+#### 27. AdminCashoutPage (`/admin/finance/cashouts`)
+* **Purpose:** Review vendor withdrawal requests and record payout completion.
+* **Layout:** Summary strip for pending amount, cash-out request table, and request detail drawer.
+* **Table columns:** Vendor store, account name, payout channel, requested MMK amount, submitted date, and status.
+* **Detail drawer:** Vendor identity, withdrawable balance snapshot, payout account, requested amount, and review notes.
+* **Actions:** Mark paid and complete, reject with reason, close preview.
+* **Important states:** Pending, completed, rejected, insufficient balance warning, and empty queue.
+* **Admin powers:** Review payout details, mark a transfer as paid and complete, reject with a reason, and view completed payout history. A completed payout is read-only.
+
+#### 28. AdminOrdersPage (`/admin/orders`)
+* **Purpose:** Monitor every order across customers and vendors.
+* **Layout:** Filter bar, order table, and order detail drawer.
+* **Filters:** Order number, customer, vendor, payment status, fulfillment status, date range, and dispute flag.
+* **Table columns:** Order number, customer, vendor count, total MMK, payment status, fulfillment status, and created date.
+* **Detail drawer:** Shipping address, order items, vendor assignments, escrow status, tracking events, and dispute notes.
+* **Admin powers:** Inspect any order, trace escrow and fulfillment events, flag an order for dispute review, add an internal note, and resolve a dispute with confirmation. Financial state changes must be explicit and irreversible actions must be confirmed.
+
+#### 29. AdminUsersPage (`/admin/users`)
+* **Purpose:** Search, inspect, and manage platform accounts.
+* **Layout:** Page header with `Add User` button, search/filter bar, user table, and account detail drawer.
+* **Filters:** Role, account status, verification state, and registration date.
+* **Table columns:** Name, email, phone, role, account status, joined date, and actions.
+* **Row actions:** Inspect, Edit, Suspend, Reactivate, and Reset Password where permitted.
+* **Detail drawer:** A drawer is a temporary panel that slides in from the right when an admin selects a user. It keeps the user list visible in the background while showing profile summary, wallet balances, order count, vendor record if present, account activity, and available actions.
+* **Drawer actions:** Edit User, Suspend/Reactivate, Open Vendor Record, View Orders, and Close.
+* **Admin powers:** Inspect accounts, edit account details, create customer/vendor/admin accounts, suspend or reactivate customers and vendors, review wallet/order history, and open related vendor records. Admin accounts require an additional confirmation before status changes.
+* **Safety:** Never display or retrieve a user's password. Password reset is an action, not a readable field.
+
+#### 30. AdminUserCreatePage (`/admin/users/new`)
+* **Purpose:** Allow an administrator to create a platform account without using the public registration page.
+* **Layout:** Form divided into Account Details, Role & Access, and Vendor Details when applicable.
+* **Fields:** Full name, email, phone, role, temporary password, password confirmation, and account status.
+* **Role options:** Customer, Vendor, and Admin.
+* **Vendor fields:** Store name, store slug preview, verified-store toggle, and initial vendor token balance.
+* **Admin fields:** Admin access confirmation and explicit warning that the account can access the Admin Control Center.
+* **Actions:** Create User, Create & Open User, Cancel, and Reset.
+* **Validation:** Required fields, unique email/phone messaging, password rules, vendor store-name requirement, and admin-role confirmation.
+* **Success state:** Show created user summary and actions to open the detail drawer or return to the users list.
+
+#### 31. AdminUserDetailPage (`/admin/users/:id`)
+* **Purpose:** Provide a full-page account view when a drawer is not enough for deep inspection.
+* **Layout:** Breadcrumb, profile header, account status card, wallet summary, order summary, vendor summary when applicable, and activity timeline.
+* **Actions:** Edit User, Suspend/Reactivate, Reset Password, and Back to Users.
+* **Safety:** Passwords remain unreadable; destructive account actions require confirmation and explain their effects.
+
+#### 32. AdminVendorsPage (`/admin/vendors`)
+* **Purpose:** Manage vendor storefront quality and verification.
+* **Layout:** Vendor table with store detail drawer.
+* **Table columns:** Store name, owner, verification state, active listings, order volume, and joined date.
+* **Detail drawer:** Store identity, owner profile, listing summary, token balance, fulfillment performance, and account standing.
+* **Actions:** Review verification, suspend store, or open vendor portal.
+* **Admin powers:** Verify or unverify a store, suspend or reactivate store access, inspect listings and fulfillment history, and open the vendor portal in an admin context. Do not silently delete a vendor with orders or financial history.
+
+#### 33. AdminActivityPage (`/admin/activity`)
+* **Purpose:** Provide an audit trail of administrative actions.
+* **Layout:** Timeline/table hybrid with filters and event detail drawer.
+* **Event fields:** Actor, action, target type, target identifier, timestamp, result, and notes.
+* **Filters:** Actor, action type, date range, and result.
+* **Initial empty state:** Explain that activity history will appear as admin actions are recorded.
+* **Admin powers:** Filter and inspect activity records. Activity records are read-only and cannot be edited or deleted from the interface.
+
+### 34. AdminDashboardPage API Binding (After UI Approval)
 * **Access Scope:** RoleGuard(['admin'])
 * **UI Blueprint:**
-  * System Counter Cards:
-    * Pending Base Product Requests Queue Count.
-    * Pending Bank Slips Verification Count.
-    * Pending Vendor Cashout Requests Count.
-    * Total Platform Gross Merchandise Value (GMV) MMK.
-  * Quick Navigation Links to moderation queues.
-* **Connected API Methods:** `adminService.getDashboardCounters()`.
+  * **Shell:** AdminLayout with a charcoal sidebar, compact top bar, and a calm off-white content canvas. This is an operations console, not a storefront.
+  * **Sidebar:** ZinYaw Admin mark, Dashboard, Product Moderation, Bank Slip Verification, Vendor Cash-outs, and a bottom Logout action.
+  * **Top Bar:** Page title "Admin Dashboard", current admin name, role badge `ADMIN`, and a refresh button.
+  * **Summary Cards:** Four equal cards in a responsive grid:
+    * Pending Base Product Requests, with count and link to `/admin/moderation/base-products`.
+    * Pending Bank Slips, with count and link to `/admin/payments/bank-slips`.
+    * Pending Vendor Cash-outs, with count and link to `/admin/finance/cashouts`.
+    * Platform GMV, formatted in MMK.
+  * **Action Queue:** A "Needs attention" section with three horizontal queue rows. Each row shows queue name, pending count, short explanation, and a text action button.
+  * **Recent Activity:** A compact placeholder region for the latest moderation/payment actions. It may display an empty state until an activity endpoint exists; do not invent activity data in the first implementation.
+  * **Visual Direction:** Restrained charcoal navigation, white data surfaces, thin slate borders, emerald success states, amber pending states, and rose destructive actions. Avoid marketing hero treatments, oversized illustrations, and decorative gradients.
+  * **Responsive Behavior:** Sidebar collapses to a menu button on small screens; summary cards become one column; queue rows retain readable action targets without horizontal overflow.
+* **Loaded State:** `dashboardSummary` via `adminService.getDashboardSummary()`.
+* **Interactive Features:**
+  * Page load -> Fetches the four summary values.
+  * Refresh click -> Re-fetches the summary and updates `updated_at`.
+  * Summary card or queue action click -> Navigates to the corresponding admin queue.
+  * API failure -> Keeps the shell visible and shows an inline error with a retry action.
+* **Connected API Methods:** `adminService.getDashboardSummary()`.
 
-### 20. AdminProductModerationPage (/admin/moderation/base-products)
+### 35. AdminProductModerationPage API Binding (After UI Approval)
 * **Access Scope:** RoleGuard(['admin'])
 * **UI Blueprint:**
   * Queue Table of user-requested Base Products waiting for approval.
@@ -342,7 +518,7 @@ The ZinYaw platform UI is built on a 3-Tier Layout Shell Hierarchy with 4 Securi
     * "Reject" -> Opens rejection modal (enter reason, e.g. "Duplicate entry").
 * **Connected API Methods:** `adminService.getPendingProducts()`, `adminService.approveProduct()`, `adminService.rejectProduct()`.
 
-### 21. AdminBankSlipPage (/admin/payments/bank-slips)
+### 36. AdminBankSlipPage API Binding (After UI Approval)
 * **Access Scope:** RoleGuard(['admin'])
 * **UI Blueprint:**
   * Table of manual customer top-up bank slip submissions.
@@ -357,7 +533,7 @@ The ZinYaw platform UI is built on a 3-Tier Layout Shell Hierarchy with 4 Securi
   * Transaction status changes to Completed.
 * **Connected API Methods:** `adminService.getPendingSlips()`, `adminService.verifyBankSlip()`.
 
-### 22. AdminCashoutPage (/admin/finance/cashouts)
+### 37. AdminCashoutPage API Binding (After UI Approval)
 * **Access Scope:** RoleGuard(['admin'])
 * **UI Blueprint:**
   * Table of Vendor Withdrawal Cash-Out requests.

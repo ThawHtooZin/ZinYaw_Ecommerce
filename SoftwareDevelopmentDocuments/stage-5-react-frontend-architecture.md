@@ -239,6 +239,10 @@ Handles moderation of pending base products, bank slip verification, and vendor 
 import api from './api';
 
 export const adminService = {
+  getDashboardSummary: async () => {
+    const response = await api.get('/admin/dashboard/summary');
+    return response.data;
+  },
   getPendingBaseProducts: async () => {
     const response = await api.get('/admin/base-products/pending');
     return response.data;

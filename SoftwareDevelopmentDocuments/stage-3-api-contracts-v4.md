@@ -723,6 +723,26 @@ These endpoints are the homepage discovery contract. They must be added to the L
 
 ## 7. Admin Control Center APIs
 
+### 7.0 Admin Dashboard Summary
+* **HTTP Method:** `GET`
+* **Endpoint:** `/admin/dashboard/summary`
+* **Auth:** Bearer Token (Admin role only)
+* **Response (200 OK):**
+```json
+{
+  "success": true,
+  "data": {
+    "pending_base_product_requests": 12,
+    "pending_bank_slips": 7,
+    "pending_cashouts": 3,
+    "total_gmv_mmk": 1250000.00,
+    "updated_at": "2026-09-14T10:30:00Z"
+  }
+}
+```
+* **Purpose:** Provides the four summary values displayed on the Admin Dashboard without loading the full moderation queues.
+* **Security Requirement:** The admin route group must enforce both `auth:sanctum` and `role:admin`. Authentication alone is not sufficient for admin endpoints.
+
 ### 7.1 List & Review Pending Base Product Requests
 * **HTTP Method:** `GET`
 * **Endpoint:** `/admin/base-products/pending`
@@ -783,3 +803,4 @@ These endpoints are the homepage discovery contract. They must be added to the L
 * **[LOG-010] [ARCHITECT-STAGE-3.2]** Merged v3 Direct MMK Architecture changes into this expanded contract: MMK wallet terminology, MMK-priced listings, MMK escrow checkout, vendor cash-out path, and delivery/admin approval updates.
 * **[LOG-011] [ARCHITECT-STAGE-4]** Created v4 by preserving the complete v2 endpoint and response context while incorporating the v3 Direct MMK wallet, pricing, escrow, cash-out, and approval updates.
 * **[LOG-012] [ARCHITECT-STAGE-4.1]** Defined the homepage discovery contract around the implemented catalog/vendor data model: five newest approved products and three newest verified vendors.
+* **[LOG-013] [ARCHITECT-STAGE-4.2]** Expanded the living documentation for the Admin Control Center: added the protected dashboard summary contract, aligned admin route names, and defined the Stitch-ready Admin Dashboard interface contract.

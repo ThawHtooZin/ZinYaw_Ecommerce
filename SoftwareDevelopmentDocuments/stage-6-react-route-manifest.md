@@ -85,11 +85,52 @@ This document provides the complete, production-ready React Router v6 manifest f
 ### 5. Area 5: Protected Admin Control Center (`AdminLayout` + `RoleGuard['admin']`)
 | Route Path | Component View | Description & Connected Endpoint |
 | :--- | :--- | :--- |
-| `/admin/dashboard` | `AdminDashboard` | Platform summary, pending task queues |
-| `/admin/moderation` | `ProductModerationPage` | Review pending base product submissions (`GET /admin/base-products/pending`) |
-| `/admin/moderation/:id` | `ProductReviewModal` | Approve or reject base products (`POST /admin/base-products/{id}/approve`, `POST /admin/base-products/{id}/reject`) |
+| `/admin/dashboard` | `AdminDashboardPage` | Platform summary and pending task queues (`GET /admin/dashboard/summary`) |
+| `/admin/moderation/base-products` | `AdminProductModerationPage` | Review pending base product submissions (`GET /admin/base-products/pending`) |
+| `/admin/moderation/base-products/:id` | `ProductModerationDetailPage` | Review one submitted base product and approve or reject it (API required later) |
 | `/admin/payments/bank-slips` | `BankSlipVerificationPage` | Verify uploaded bank transfer slips (`GET /admin/payments/slips/pending`, `POST /admin/payments/slips/{id}/verify`) |
 | `/admin/finance/cashouts` | `AdminCashoutPage` | Review vendor withdrawal requests (`GET /admin/cashouts/pending`, `POST /admin/cashouts/{id}/approve`) |
+| `/admin/orders` | `AdminOrdersPage` | Monitor all platform orders, escrow states, fulfillment, and disputes (API required later) |
+| `/admin/users` | `AdminUsersPage` | Search and review customer, vendor, and admin accounts (API required later) |
+| `/admin/users/new` | `AdminUserCreatePage` | Create a customer, vendor, or admin account (API required later) |
+| `/admin/users/:id` | `AdminUserDetailPage` | Inspect account profile, wallet, orders, vendor record, and account actions (API required later) |
+| `/admin/vendors` | `AdminVendorsPage` | Review vendor stores, verification status, listings, and account standing (API required later) |
+| `/admin/catalog` | `AdminCatalogPage` | Browse approved base products, active offers, visibility, and catalog actions (API required later) |
+| `/admin/catalog/base-products/new` | `AdminBaseProductCreatePage` | Create a base product directly as an admin (API required later) |
+| `/admin/catalog/base-products/:id/edit` | `AdminBaseProductEditPage` | Edit base product metadata, image, category, and specifications (API required later) |
+| `/admin/catalog/categories` | `AdminCategoryManagementPage` | Create, rename, reorder, hide, and archive catalog categories (API required later) |
+| `/admin/activity` | `AdminActivityPage` | Review an audit timeline of administrative actions (API required later) |
+
+### Admin Sidebar Navigation Contract
+The `AdminLayout` sidebar is persistent on desktop and collapsible on small screens. It is the primary navigation for the entire Admin Control Center.
+
+```text
+ZinYaw Admin
+
+Overview
+  Dashboard
+
+Operations
+  Product Moderation
+  Bank Slip Verification
+  Vendor Cash-outs
+  Orders
+
+Management
+  Users
+  Vendors
+  Catalog
+
+System
+  Activity Log
+  Settings (planned)
+
+Admin profile
+  Admin name and ADMIN badge
+  Logout
+```
+
+The sidebar must show a pending-count badge beside Product Moderation, Bank Slip Verification, and Vendor Cash-outs when counts are available. The dashboard remains the default landing page after an admin logs in.
 
 ---
 
