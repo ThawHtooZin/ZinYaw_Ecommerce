@@ -3,12 +3,24 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useWallet } from '../../context/WalletContext';
 import { useCart } from '../../context/CartContext';
+import { useState } from 'react';
 
 export default function Navbar() {
   const { user, isAuthenticated, logout } = useAuth();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const { balances } = useWallet();
   const { cartItems } = useCart();
   const navigate = useNavigate();
+
+  async function handleLogout() {
+    try {
+      setIsLoggingOut(true);
+      await logout();
+      navigate('/login', { replace: true });
+    } finally {
+      setIsLoggingOut(false);
+    }
+  }
 
   return (
     <header className="w-full bg-white border-b border-slate-200 sticky top-0 z-50">
@@ -59,10 +71,81 @@ export default function Navbar() {
             </div>
           )}
 
-          <Link to={isAuthenticated ? "/account/profile" : "/login"} className="hover:text-indigo-600 flex items-center gap-1">
-            <span>👤</span>
-            <span>{user?.name || "Account"}</span>
-          </Link>
+          <div className="relative group">
+            <Link
+              to={isAuthenticated ? '/' : '/login'}
+              className="flex items-center gap-1 hover:text-indigo-600"
+            >
+              <span>👤</span>
+              <span>{user?.name || 'Account'}</span>
+            </Link>
+
+            {isAuthenticated && (
+              <div className="absolute right-0 top-full hidden w-48 pt-3 group-hover:block group-focus-within:block">
+                <div className="rounded-lg border border-slate-200 bg-white py-2 shadow-lg">
+                  <Link
+                    to="/account/notifications"
+                    className="block px-4 py-3 text-sm hover:bg-slate-50"
+                  >
+                    Notifications
+                  </Link>
+
+                  <Link
+                    to="/account/inquiries"
+                    className="block px-4 py-3 text-sm hover:bg-slate-50"
+                  >
+                    My Inquiry
+                  </Link>
+
+                  <Link
+                    to="/account/favorites"
+                    className="block px-4 py-3 text-sm hover:bg-slate-50"
+                  >
+                    My Favorites
+                  </Link>
+
+                  <Link
+                    to="/cart"
+                    className="block px-4 py-3 text-sm hover:bg-slate-50"
+                  >
+                    Shopping Cart
+                  </Link>
+
+                  <Link
+                    to="/account/orders"
+                    className="block px-4 py-3 text-sm hover:bg-slate-50"
+                  >
+                    My Purchase
+                  </Link>
+
+                  <Link
+                    to="/account/wallet"
+                    className="block px-4 py-3 text-sm hover:bg-slate-50"
+                  >
+                    My Balance
+                  </Link>
+
+                  <Link
+                    to="/account/profile"
+                    className="block px-4 py-3 text-sm hover:bg-slate-50"
+                  >
+                    My Account
+                  </Link>
+
+                  <div className="my-2 border-t border-slate-100" />
+
+                  <button
+                    type="button"
+                    onClick={handleLogout}
+                    disabled={isLoggingOut}
+                    className="block w-full px-4 py-3 text-left text-sm text-red-600 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {isLoggingOut ? 'Logging out...' : 'Logout'}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
 
           <Link to="/cart" className="flex items-center gap-1.5 hover:text-indigo-600">
             <span>🛒</span>

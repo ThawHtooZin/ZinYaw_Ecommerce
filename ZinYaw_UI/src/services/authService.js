@@ -3,21 +3,23 @@ import api from './api';
 export const authService = {
   // POST /auth/login
   login: async (credentials) => {
-    const res = await api.post('/auth/login', credentials);
+    const response = await api.post('/auth/login', credentials);
+    const data = response.data;
     // On success, store Sanctum token
-    if (res.data?.token) {
-      localStorage.setItem('zinyaw_token', res.data.token);
+    if (data?.token) {
+      localStorage.setItem('zinyaw_token', data.token);
     }
-    return res.data;
+    return data;
   },
 
   // POST /auth/register
   register: async (payload) => {
-    const res = await api.post('/auth/register', payload);
-    if (res.data?.token) {
-      localStorage.setItem('zinyaw_token', res.data.token);
+    const response = await api.post('/auth/register', payload);
+    const data = response.data;
+    if (data?.token) {
+      localStorage.setItem('zinyaw_token', data.token);
     }
-    return res.data;
+    return data;
   },
 
   // POST /auth/logout

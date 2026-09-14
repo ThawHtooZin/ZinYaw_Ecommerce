@@ -49,6 +49,13 @@ export const AuthProvider = ({ children }) => {
     return data;
   };
 
+  const register = async (payload) => {
+    const data = await authService.register(payload);
+    // data.user comes from Laravel POST /auth/register response
+    setUser(data.user);
+    return data;
+  };
+
   // 4. Logout action: clears local token and resets state
   const logout = async () => {
     try {
@@ -65,6 +72,7 @@ export const AuthProvider = ({ children }) => {
     loading,
     isAuthenticated: !!user,
     login,
+    register,
     logout,
   };
 

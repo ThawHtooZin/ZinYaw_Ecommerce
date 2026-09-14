@@ -1,10 +1,10 @@
 # RESTful API Contracts Specification
-## Stage 3: Laravel REST API & React Integration Blueprint (v2.1 - Direct MMK Architecture)
+## Stage 3: Laravel REST API & React Integration Blueprint (v4.0 - v2 Full Context with Direct MMK Architecture)
 
 **Project Title:** Direct MMK Multi-Vendor Dropshipping Platform
 **Tech Stack:** React (Frontend) + Laravel REST API (Backend - Sanctum Auth)  
 **Base URL:** `https://api.yourdomain.com/api/v1`  
-**Document Version:** 2.1.0
+**Document Version:** 4.0.0
 **Author / Lead:** System Architect  
 
 ---
@@ -728,3 +728,4 @@
 * **[LOG-008] [ARCHITECT-STAGE-3]** Generated RESTful API Contracts Specification (`stage-3-api-contracts.md`).
 * **[LOG-009] [ARCHITECT-STAGE-3.1]** Generated Updated API Contract Specification v2 (`stage-3-api-contracts-v2.md`) incorporating all missing endpoints (Logout, AYA Pay Callback, Category Trees, Single Base Product Details, Vendor Token Purchases, Listing CRUD/Listings, Vendor Orders, Customer Orders History/Timeline, and Admin Product Rejection).
 * **[LOG-010] [ARCHITECT-STAGE-3.2]** Merged v3 Direct MMK Architecture changes into this expanded contract: MMK wallet terminology, MMK-priced listings, MMK escrow checkout, vendor cash-out path, and delivery/admin approval updates.
+* **[LOG-011] [ARCHITECT-STAGE-4]** Created v4 by preserving the complete v2 endpoint and response context while incorporating the v3 Direct MMK wallet, pricing, escrow, cash-out, and approval updates.
